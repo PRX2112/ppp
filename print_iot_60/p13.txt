@@ -1,0 +1,35 @@
+Q13-1. To interface IR Sensor with Arduino and write a program to blink red or white LED. If the Transmitter transmit and Photodiode receives the rays then glow White LED else glow Red LED/play the buzzer.
+
+int ledw=2;
+int ledr=3;
+int spin=8;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(spin,INPUT);
+  pinMode(ledw,OUTPUT);
+  pinMode(ledr,OUTPUT);
+  Serial.begin(9600);
+  
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  Serial.println(digitalRead(spin));
+
+  if(digitalRead(spin)==0)
+  {
+    digitalWrite(ledw,HIGH);
+    digitalWrite(ledr,LOW);
+    delay(500);
+    
+  }
+  else
+  {
+    digitalWrite(ledr,HIGH);
+    digitalWrite(ledw,LOW);
+    delay(500);
+  }
+
+}

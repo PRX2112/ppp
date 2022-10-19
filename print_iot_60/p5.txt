@@ -1,0 +1,27 @@
+Q5. To interface 2 LED with different colour and write a program to turn ON/OFF LED light on after another, which works light police Van Light. And also play the buzzer of police van or ambulance.
+
+
+#define LED1 4
+#define LED2 5
+#define buzz 9
+
+void setup() {
+  // put your setup code here, to run once:
+   pinMode(buzz,OUTPUT);
+   pinMode(LED1,OUTPUT);
+  pinMode(LED2,OUTPUT);
+  
+}
+
+void loop() { 
+
+  digitalWrite(LED1,HIGH);
+  digitalWrite(LED2,LOW);
+  tone(buzz,800);
+  delay(500);
+  digitalWrite(LED1,LOW);
+  tone(buzz,400);
+  digitalWrite(LED2,HIGH);
+  delay(500);
+
+}

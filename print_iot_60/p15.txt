@@ -1,0 +1,62 @@
+Q14. Take only 3 readings of ultrasonic sensor (after trigger) at the intervals of 2 seconds then stop taking further readings. Average the readings and find out if that number is an Armstrong number or not. 
+
+int trig=3;
+int echopin=5;
+long duration;
+int distance;
+int sum=0,avg=0,t,rem,n1=0;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(trig,OUTPUT);
+  pinMode(echopin,INPUT);
+  Serial.begin(9600);
+  Serial.print("Sensor Started\n");  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:  
+
+  for(int i=0;i<3;i++)
+  {
+    digitalWrite(trig,LOW);
+    delay(2000);
+    digitalWrite(trig,HIGH);
+    delay(1000);
+    digitalWrite(trig,LOW);
+
+    duration =pulseIn(echopin,HIGH);
+    distance=duration * 0.034/2;  
+  
+    Serial.print("Distance : ");
+    Serial.print(distance);
+    Serial.print("cm"); 
+    Serial.print("\n"); 
+    
+    delay(500); 
+    sum=sum+distance;
+    avg=sum/i;
+  }
+  Serial.print("Sum of Distance is :"); 
+  Serial.println(sum); 
+  Serial.print("Average of Distance is :"); 
+  Serial.println(avg); 
+
+  t=avg;
+  while(avg>0)
+  {
+    rem=avg%10;
+    n1=n1+(rem*rem*rem);
+    avg=avg/10;   
+    
+  }
+  if(t==n1)
+  {
+    Serial.print("Armstrong number"); 
+  }
+  else
+  {
+    Serial.println("Not Armstrong number"); 
+  }
+  delay(200000);  
+}

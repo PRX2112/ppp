@@ -1,0 +1,19 @@
+Q2. To interface LCD with Arduino and write a program to Display your name on LCD.
+
+#include <LiquidCrystal.h>
+
+
+const int rs = 2, en = 3, d11=5, d12 = 6, d13 = 7, d14 = 8;
+LiquidCrystal lcd(rs, en, d11, d12, d13, d14);
+
+void setup() {
+  
+  lcd.begin(16, 2);
+  
+  lcd.print("GAUTAMI..!!!");
+}
+
+void loop() {
+  
+ lcd.display();
+}

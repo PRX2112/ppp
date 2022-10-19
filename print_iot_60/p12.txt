@@ -1,0 +1,20 @@
+Q12. To interface IR Sensor with Arduino and write a program to print readings of IR sensor.
+
+
+int spin=8;
+
+void setup() {
+
+  pinMode(spin,INPUT);
+
+  Serial.begin(9600);
+  
+}
+
+void loop()
+{
+ 
+  Serial.println(digitalRead(spin));
+
+ 
+}

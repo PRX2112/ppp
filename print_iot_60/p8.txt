@@ -1,0 +1,37 @@
+Q8. To interface DHT11 Sensor with Arduino and write a program to print temperature and humidity reading.
+
+//#include "DHT.h"
+#include <DHT.h>
+#define DHTPIN 13   
+#define DHTTYPE DHT11   
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println(F("DHTxx TESTING....."));
+  dht.begin();
+}
+
+void loop() {
+  delay(2000);
+  float h = dht.readHumidity();  
+  float t = dht.readTemperature();  
+  float f = dht.readTemperature(true);
+
+  if (isnan(h) || isnan(t) || isnan(f)) 
+  {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+
+  float hif = dht.computeHeatIndex(f, h); 
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  Serial.println(F("Humidity: "));
+  Serial.print(h);
+  Serial.println(F("%  Temperature (C): "));
+  Serial.print(t);
+  Serial.println(F("%  Temperature (F): "));
+  Serial.print(f);
+                 
+}

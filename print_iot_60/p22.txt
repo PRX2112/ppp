@@ -1,0 +1,3 @@
+Q7. Write a program to communicate client and server through API. 
+Update the led /buzzer status value to database through php API as per LED/Buzzer’s ON/OFF state.
+

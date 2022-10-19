@@ -1,0 +1,65 @@
+Q10. Write a Program to read three values of temperature and 10 values of humidity. Perform Addition of three temperature readings and print the number is odd or even. Calculate the average of 10 humidity readings.
+
+#include <DHT.h>
+#define DHTPIN 10  
+#define DHTTYPE DHT11   
+DHT dht(DHTPIN, DHTTYPE);
+int temp=0;
+int avg_humidity=0;
+int sum_humidity=0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println(F("DHTxx TESTING....."));
+  dht.begin();
+}
+
+void loop() {
+  delay(2000);
+  float h = dht.readHumidity();  
+  float t = dht.readTemperature();  
+  float f = dht.readTemperature(true);
+
+  if (isnan(h) || isnan(t) || isnan(f)) 
+  {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+
+  float hif = dht.computeHeatIndex(f, h); 
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  for(int i=0;i<3;i++)
+  {
+    
+    Serial.println(F("%  Temperature (C): "));
+    Serial.print(t);
+    temp=temp+t;
+  }
+  delay(500);
+  for(int j=0;j<10;j++)
+  {
+    Serial.println(F("Humidity: "));
+    Serial.print(h);
+    sum_humidity=sum_humidity+h;
+    avg_humidity=sum_humidity/10;
+    
+  }
+  Serial.print("\n Temperature is ");
+  Serial.print(temp);
+  Serial.print("\n");
+  
+  if(temp%2 == 0)
+  {
+    Serial.println("Addition of Temperature is Even ");
+  }
+  else
+  {
+    Serial.println("\n Addition of Temperature is Odd ");
+  }
+   Serial.println("\n Average of Humidty is :");
+   Serial.println(avg_humidity);
+  delay(100000);
+  
+                  
+}

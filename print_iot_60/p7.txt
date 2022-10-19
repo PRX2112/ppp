@@ -1,0 +1,28 @@
+Q7. To interface PULLUP BUTTON with Arduino. write a program to turn ON/OFF as per the button pullup.
+
+
+#define pullup 3
+#define led 8
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(96000);
+  pinMode(pullup,INPUT_PULLUP);
+  pinMode(led,OUTPUT);
+
+}
+void loop() {
+  // put your main code here, to run repeatedly:
+    Serial.println(digitalRead(pullup));
+
+    if(digitalRead(pullup)==LOW)
+    {
+      digitalWrite(led,HIGH);
+    }
+    else
+    {
+      digitalWrite(led,LOW);
+    }
+   
+
+}
