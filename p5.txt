@@ -1,0 +1,1060 @@
+Q5.Create a PHP application "Electronic Item Repair".
+
+
+------------c_registration.php -----------------
+<?php
+$con=mysqli_connect("localhost","root","","electronic");
+if(mysqli_connect_errno())
+{
+    echo "<script> alert('Connection Failed...'); </script>";
+}
+
+if(isset($_POST['Insert']))
+{
+   
+    $nm=$_POST['txtname'];
+    $pno=$_POST['txtmob'];    
+    $age=$_POST['txtage'];
+    $photo=$_FILES['file']['name'];
+    $type="Customer";
+    $pwd=$_POST['txtpwd'];
+    $cpwd=$_POST['txtcpwd'];   
+    $basename=substr($photo,0,strripos($photo,'.'));
+    $ext=substr($photo,strripos($photo,'.'));
+    $newname=md5($basename).rand(10,1000).$ext;
+    $tmpname=$_FILES['file']['tmp_name'];
+    $flag=0;
+    if(file_exists("upload11/".$newname))
+    {
+        echo "<script> alert('File already exists...'); </script>";
+    }
+    else{
+        move_uploaded_file($tmpname,"upload11/".$newname);
+        $flag=1;
+
+    }
+    if($flag==1)
+    {
+        echo "<script> alert('File uploaded successfully....'); </script>";
+    }    
+    if($pwd==$cpwd)
+    {
+            $query="insert into regtbl (Name,Phone_No,Age,Photo,Type,Password) values ('$nm','$pno','$age','$newname','$type','$pwd')";                                        $result=mysqli_query($con,$query) or die('insert failed');
+            echo "<script> alert('Record Added...'); </script>";
+        }
+        else
+        {
+            echo "<script> alert('Password and Confirm password must be same...'); </script>";
+        }    
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIR Registration Page</title>
+</head>
+<body>
+<nav class="navbar bg-dark text-light navbar-expand-lg">
+        <div class="container-fluid">
+          <a class="navbar-brand text-light" href="#">EIR</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse  navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item ">
+                <a class="nav-link active text-light" aria-current="page" href="#">Home</a>
+              </li>             
+            </ul>
+            <form class="d-flex" role="search">             
+              <button class="btn btn-outline-light" type="submit"><a href="a_login.php" class="text-light" style="text-decoration: none;">LOGIN</a></button>
+              <button class="btn btn-outline-light mx-3" type="submit"><a href="c_registration.php" class="text-light" style="text-decoration: none;" style="text-decoration: none;">REGISTER</a></button>
+            </form>
+          </div>
+        </div>
+      </nav>
+    <div class="container">    
+    <label ><h2>CUSTOMER REGISTRATION PAGE</h2></label><br>
+        <form method="POST" class="form-control my-4" action="" enctype="multipart/form-data" >      
+	    <label> Name :</label>
+            <input class="form-control" type="text" placeholder="Enter Name" name="txtname" autocomplete="off"><br />
+            <label> Phone Number :</label>
+            <input class="form-control" type="text" placeholder="Enter Mobile Number" name="txtmob" autocomplete="off"><br />
+            <label> Age :</label>
+            <input class="form-control" type="text" placeholder="Enter Age" name="txtage" autocomplete="off"><br />
+            <label> Photo :</label>
+            <input class="form-control" type="file" name="file"><br />
+            <label> Password :</label>
+            <input class="form-control" type="password" placeholder="Enter Password" name="txtpwd" autocomplete="off"><br />
+            <label> Confirm Password :</label>
+            <input class="form-control" type="text" placeholder="Enter Confirm Password" name="txtcpwd"  autocomplete="off" ><br />
+            <button type="submit" class="btn btn-success form-control"  name="Insert" value="Insert" > REGISTER</button>
+        </form>
+        <center>If Already a User is signed up...then <a href="a_login.php">LOG IN</a></center>
+    </div>      
+  /body>
+</html>
+
+----------a_login.php -----------------
+
+<?php
+    session_start();
+    $con=mysqli_connect("localhost","root","","electronic");
+    if(isset($_POST['Login']))
+    {
+        $username=$_POST['txtunm'];
+        $password=$_POST['txtpwd'];
+        $type=$_POST['type'];
+        $flag=0;             
+        if($type == "Admin") 
+        {
+            if($username == "Gautami" && $password == "123")
+            {
+                $flag=1;
+                $_SESSION["name"]=$username;
+                echo "<script> 
+                window.location.href='a_index.php'; </script>";
+            }
+        }
+        else if($type== "Customer")
+        {
+            $query="select *from regtbl where Name='$username' and Password='$password' and Type='$type' ";
+            $result=mysqli_query($con,$query);
+            if($row=mysqli_fetch_assoc($result))
+            {
+                $flag=1;
+                $_SESSION['id']=$row['Id'];
+                $_SESSION['name']=$row['Name'];
+                echo "<script>
+                window.location.href='customer.php'; </script>";
+            }
+        }
+        else if($type== "Service_Provider")
+        {
+            $query="select *from regtbl where Name='$username' and Password='$password' and Type='$type'";
+            $result=mysqli_query($con,$query);
+            if($row=mysqli_fetch_assoc($result))
+            {
+                $flag=1;
+                $_SESSION['id']=$row['Id'];
+                $_SESSION['name']=$row['Name'];
+                echo "<script>
+                window.location.href='spviewcomplaint.php'; </script>";
+            }
+        }
+        if(!$flag)
+        {
+            echo "<script> alert('Please , Enter valid username and password....'); </script>";
+        }       
+     
+       }
+    if(isset($_POST['Back']))
+    {
+        echo "<script> window.location.href='home.php';</script>";
+
+    }    
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <title>LOGIN PAGE</title>
+</head>
+<body>
+    <div class="container">   
+    <label><h2> LOGIN PAGE</h2></label><br>
+        <form method="POST" class="form-control my-4">
+            <label> UserName :</label>
+            <input class="form-control" type="text"  name="txtunm" autocomplete="off"><br />
+            <label> Password :</label>
+            <input class="form-control" type="password"  name="txtpwd" autocomplete="off"><br />
+            <label> Type :</label>
+            <select name="type" class="form-control">
+                <option value="Admin">Admin</option>
+                <option value="Customer">Customer</option>
+                <option value="Service_Provider">Service_Provider</option>
+            </select><br />
+            <input  type="checkbox"  name="rememberme">
+            <label> Remember Me </label><br /><br />
+            <button type="submit" class="btn btn-success form-control"  name="Login" value="LOGIN" > LOGIN</button>
+            <br /><br>
+        </form>
+    </div>
+    <center>If a User is not  signed up...then <a href="c_registration.php">Register Here</a></center>     
+</body>
+</html>
+
+-------------a_index.php -----------------
+
+<?php
+    session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./bootstrap/js/bootstrap.min.js">
+    <title>Admin Home Page</title>
+</head>
+<body>
+    <div >
+        <nav class="navbar bg-dark text-light navbar-expand-lg">
+            <div class="container-fluid">            
+                <a class="navbar-brand text-light" href="#">EIR Admin Panel</a>
+                <div class="collapse navbar-collapse mx-3" id="navbarSupportedContext">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-light active" aria-current="page" href="product.php">Product_Master</a>                            
+                        </li>
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="Serviceregistration.php">Service_Registration</a>
+                        </li>
+                        <!-- <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="complaint_allocation.php">Complaint_Allocation</a>
+                        </li> -->
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="viewcomplain.php">View_Complaints</a>
+                        </li>
+                    </ul>                    
+                    <form class="d-flex" role="search">
+                        <!-- <input class="form-control me-2" type="search"  aria-label="Search"/> -->
+                        <button class="btn btn-light bh-light text-dark" type="submit" value="LOGIN"><a href="logout.php" class="text-dark" style="text-decoration: none;">LOGOUT</a></button></a>
+                        <!-- <button class="btn btn-light mx-2" type="submit"><a href="registration.php" class="text-dark" style="text-decoration: none;" style="text-decoration: none;">ServiceProvider Registration</a></button> -->
+                    </form>
+                </div>
+                </a>
+            </div>    
+        </nav>
+    </div>
+    <div>
+   <h1 class="text-danger">Hello and Welcome Admin <?php echo $_SESSION['name'];  ?></h1> 
+    </div>
+</body>
+</html>
+
+-------------- logout.php -----------------
+
+<?php
+    session_start();
+    unset($_SESSION["id"]);
+    unset($_SESSION["name"]);
+    echo "<script> alert('successfully logged out');
+    window.location.href='a_login.php'; </script>";
+?>
+
+----------complaint_allocation.php -----------------
+
+<?php    
+    $con=mysqli_connect("localhost","root","","electronic");
+    $i=" ";
+    $n=" ";
+    $d=" ";
+
+    if(mysqli_connect_errno())
+    {
+        echo "<script> alert('Connection Failed...'); </script>";
+    }
+    if(isset($_POST['Allocate']))
+    {
+        $comid=$_POST['txtcomid'];
+        $spid=$_POST['txtspid'];
+        $query="insert into allocationtbl (ComplaintId,Id) values ('$comid','$spid');";
+        $result=mysqli_query($con,$query) or die('Insertion failed');
+        echo "<script> alert('Complaint Allocated...'); </script>";
+        $query2="update complainttbl set Status='Pending'  where ComplaintId=$comid";
+        $result2=mysqli_query($con,$query2) or die('Error occured');
+    }
+    $query1="select *from regtbl where Type='Service_Provider'";
+    $result1=mysqli_query($con,$query1) or die('Error occured');
+   
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <title>CATEGORY PAGE</title>
+</head>
+<body>
+
+     <div class="container"><br>     
+       
+         <h2>Allocate ServiceProvider</h2>
+        <form method="POST" class="form-control my-4">
+            <label class="mx-2"> Complaint ID  :</label>
+            <input class="form-control" type="text"  name="txtcomid" autocomplete="off"><br />
+            <label> Service_Provider ID  :</label>           
+            <select name="txtspid" class="form-control">
+                <option>--- Select Service Provider ---</option>
+                <?php
+                    while($row=mysqli_fetch_row($result1))
+                    {
+                        ?>
+                            <option value="<?php echo $row[0];   ?>"><?php echo $row[1];   ?></option>
+                        <?php
+                    }
+                ?>
+            </select>
+            <label >Status :</label>
+            <select name="txtxstatus" class="form-control">
+                <option value="New" disabled>New</option>
+                <option value="Pending">Pending</option>
+            </select>           
+            <br>
+            <button type="submit" class="btn btn-success "  name="Allocate" value="Allocate" > Allocate_Complaint</button> 
+        </form>
+    </div>        
+</body>
+</html>
+
+----------connect.php -----------------
+
+<?php
+	$con=mysqli_connect("localhost","root","","electronic");
+	if(mysqli_connect_errno())
+	{
+   	 echo "<script> alert('Connection Failed...'); </script>";
+	}
+?>
+
+----------customer.php -----------------
+
+<?php
+    session_start();    
+    $con=mysqli_connect("localhost","root","","electronic");
+    $i=" ";
+    $n=" ";
+    $d=" ";
+    if(mysqli_connect_errno())
+    {
+        echo "<script> alert('Connection Failed...'); </script>";
+    }
+    if(isset($_POST['Register']))
+    {        
+        $cid=$_POST['txtcid'];
+        $pid=$_POST['txtpid'];
+        $cdesc=$_POST['txtdesc'];
+        $status="New";
+        $query="insert into complainttbl (Id,ProductId,Description,Status)  values ('$cid','$pid','$cdesc','$status');";
+        $result=mysqli_query($con,$query);      
+        echo "<script> alert('Complaint Registered successfully...'); </script>";
+    }  
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <title>COMPLAINT PAGE</title>
+</head>
+<body>    
+     <nav class="navbar bg-dark text-light navbar-expand-lg">
+        <div class="container-fluid">
+          <a class="navbar-brand text-light" href="#">EIR</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse  navbar-collapse" id="navbarSupportedContent">           
+            <form class="d-flex" role="search">
+              <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"> -->
+              <button class="btn btn-outline-light" type="submit"><a href="a_login.php" class="text-light" style="text-decoration: none;">LOGOUT</a></button>
+              <!-- <button class="btn btn-outline-light mx-3" type="submit"><a href="c_registration.php" class="text-light" style="text-decoration: none;" style="text-decoration: none;">REGISTER</a></button> -->
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class="container">      
+          <h3 class="text-danger">Welcome....<?php echo $_SESSION['name'];  ?></h3><br>
+         <h2>COMPLAINT PAGE</h2>
+        <form method="POST" class="form-control my-4">
+            <div align="center"><label><h2></h2></label></div>
+            <label class="mx-2"> Customer ID  :</label>
+            <input class="form-control" name="txtcid" type="text" value="<?php echo $_SESSION['id'];   ?>"><br>            
+            <label> Product ID  :</label>
+            <select name="txtpid" class="form-control">
+            <option  >- - -  Select Product - - - </option>
+                        <?php
+                            include('connect.php');
+                            $query="select *from producttbl";
+                            $result=mysqli_query($con,$query) or die("Error in category...");
+                            while($row=mysqli_fetch_array($result))
+                            {                               
+                                ?>
+                                    <option value="<?php echo $row[0]; ?>"><?php echo $row[1];  ?></option>
+                                <?php
+                            }
+                        ?>
+                    </select>
+            <br>
+            <label> Complaint Description  :</label>
+            <textarea class="form-control" name="txtdesc" rows="4" cols="20"  placeholder="Enter Description here.." ><?php echo $d;  ?></textarea>        
+            <br>
+            <button type="submit" class="btn btn-success " class="form-control" name="Register" value="Register" >Register Complaint</button>
+        </form>
+    </div>    
+     <h3 align="center">VIEW STATUS</h3>
+     <br>     
+    <table  class="container table ">      
+        <tr>
+            <td><b>Complaint ID</b></td>
+            <td><b>Customer ID</b></td>            
+            <td><b>Product ID</b></td>
+            <td><b>Complaint Description</b></td>
+            <td><b>Status</b></td>
+        </tr>
+        <?php
+            $cid=$_SESSION['id'];
+            $query="select *from complainttbl where Id=$cid";
+            $result=mysqli_query($con,$query);
+            while($row=mysqli_fetch_array($result))
+            {
+                ?>
+                <tr>
+                    <td><?php echo $row[0]; ?></td>
+                    <td><?php echo $row[1]; ?></td>
+                    <td><?php echo $row[2]; ?></td>
+                    <td><?php echo $row[3]; ?></td>
+                    <td><?php echo $row[4]; ?></td>
+               </tr>
+                <?php                
+            }
+        ?>         
+    </table>  
+</body>
+</html>
+
+
+----------get_complaint.php -----------------
+
+<?php
+    $con=mysqli_connect("localhost","root","","electronic");
+    $i=" ";
+    $n=" ";
+    $d=" ";
+    if(mysqli_connect_errno())
+    {
+        echo "<script> alert('Connection Failed...'); </script>";
+    }
+    if(isset($_POST['Register']))
+    {
+        $comid=$_POST['txtcomid'];
+        $cid=$_POST['txtcid'];
+        $pid=$_POST['txtpid'];
+        $cdesc=$_POST['txtdesc'];
+        $status="New";
+        $query="insert into complainttbl  values ($comid,$cid,$pid,'$cdesc','$status');";
+        $result=mysqli_query($con,$query);
+        echo "<script> alert('Complaint Registered successfully...'); </script>";
+    }    
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPLAINT PAGE</title>
+</head>
+<body>    
+     <nav class="navbar bg-dark text-light navbar-expand-lg">
+        <div class="container-fluid">
+          <a class="navbar-brand text-light" href="#">EIR</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse  navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item ">
+                <a class="nav-link active text-light" aria-current="page" href="home.html">Home</a>
+              </li>        
+            </ul>
+            <form class="d-flex" role="search">
+              <button class="btn btn-outline-light" type="submit"><a href="a_login.php" class="text-light" style="text-decoration: none;">LOGIN</a></button>
+              <button class="btn btn-outline-light mx-3" type="submit"><a href="c_registration.php" class="text-light" style="text-decoration: none;" style="text-decoration: none;">REGISTER</a></button>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class="container">
+         <h2>GET COMPLAINT PAGE</h2>
+        <form method="POST" class="form-control my-4">
+            <div align="center"><label><h2></h2></label></div>
+            <label class="mx-2"> Complaint ID  :</label>
+            <input class="form-control" type="text"  name="txtcomid"><br />
+            <label class="mx-2"> Customer ID  :</label>
+            <select name="txtcid" class="form-control" >                      
+                   <?php
+                            include('connect.php');
+                            $cnm="Customer";
+                            $query="select Id ,Name from regtbl where Type='$cnm'";
+                            $result=mysqli_query($con,$query) or die("Error in category...");
+
+                            while($row=mysqli_fetch_array($result))
+                            {
+                                echo "<option value=$row[0]>$row[0]</option>";
+                            }
+                        ?>
+            </select><br>            
+            <label> Product ID  :</label>
+            <select name="txtpid" class="form-control" >
+                    <?php
+                            include('connect.php');
+                            $query="select Product_Id  from producttbl ";
+                            $result=mysqli_query($con,$query) or die("Error in category...");
+                            while($row=mysqli_fetch_array($result))
+                            {
+                                echo "<option value=$row[0]>$row[0]</option>";
+                            }
+                    ?>
+            </select>
+            <br>
+            <label> Complaint Description  :</label>
+            <textarea class="form-control" name="txtdesc" rows="4" cols="20"  placeholder="Enter Description here.." ><?php echo $d;  ?></textarea>        
+            <button type="submit" class="btn btn-success " class="form-control" name="Register" value="Register" >Register Complaint</button>
+        </form>
+    </div>    
+</body>
+</html>
+
+----------home.php -----------------
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+</head>
+<body>
+    <nav class="navbar bg-dark text-light navbar-expand-lg">
+        <div class="container-fluid">
+          <a class="navbar-brand text-light" href="#">EIR</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse  navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item ">
+                <a class="nav-link active text-light" aria-current="page" href="home.php">Home</a>
+              </li>              
+            </ul>
+            <form class="d-flex" role="search">
+              <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"> -->
+              <button class="btn btn-outline-light" type="submit"><a href="a_login.php" class="text-light" style="text-decoration: none;">LOGIN</a></button>
+              <button class="btn btn-outline-light mx-3" type="submit"><a href="c_registration.php" class="text-light" style="text-decoration: none;" style="text-decoration: none;">REGISTER</a></button>
+            </form>
+          </div>
+        </div>
+      </nav>   
+      <h1 class="my-3 mx-3 text-danger">Welcome to Home Page....</h1>   
+</body>
+</html>
+
+
+----------p_delete.php -----------------
+
+<?php
+ $con=mysqli_connect("localhost","root","","electronic");
+if(isset($_REQUEST['id'])){
+    $pid=$_REQUEST['id'];
+    $query="delete from producttbl where Product_Id=$pid";
+    $result=mysqli_query($con,$query) or die(mysqli_error($con));
+    header('location:product.php'); 
+    echo "<script> alert('Product Deleted...'); </script>"; 
+}
+?>
+
+----------p_update.php -----------------
+
+<?php
+        $con=mysqli_connect("localhost","root","","electronic");
+        if(isset($_REQUEST['id'])){
+        $pid=$_REQUEST['id'];        
+        $query="select *from producttbl where Product_Id=$pid";
+        $result=mysqli_query($con,$query);
+        $row=mysqli_fetch_assoc($result); 
+        $i=$row['Product_Id'];
+        $n=$row['Product_Name'];
+        $d=$row['Description'];         
+        }
+        if(isset($_POST['Update'])){
+            $pnm = $_POST['txtpnm'];
+            $desc=$_POST['txtdesc'];
+            $query1="update producttbl set Product_Name='$pnm',Description='$desc' where Product_Id=$pid";
+            $result=mysqli_query($con,$query1) or die(mysqli_error($con));
+            header('location:product.php'); 
+        }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <title>PRODUCT PAGE</title>
+</head>
+<body>
+<div class="container">
+         <br>         
+         <div align="center"><label><h2>PRODUCT UPDATE PAGE</h2></label></div>
+        <form method="POST" class="form-control my-4">
+            <label class="mx-2"> Product  ID  :</label>
+            <input class="form-control" type="text" value="<?php echo $i;  ?>" name="txtpid"><br />
+            <label> Product Name  :</label>
+            <input class="form-control" type="text" value="<?php echo $n;  ?>" name="txtpnm"><br />        
+            <label >Description :</label>
+            <textarea name="txtdesc" class="form-control" rows="4" cols="20"  placeholder="Enter Description here.." style="background-color: transparent;"><?php echo $d;  ?></textarea>     
+          <button type="submit" class="btn btn-success "  name="Update" value="Update" >Update</button>
+        </form>
+    </div>
+    
+----------product.php -----------------
+
+<?php
+
+    $con=mysqli_connect("localhost","root","","electronic");
+    $i=" ";
+    $n=" ";
+    $d=" ";
+    if(mysqli_connect_errno())
+    {
+        echo "<script> alert('Connection Failed...'); </script>";
+    }
+    if(isset($_POST['Insert']))
+    {
+        $pid=$_POST['txtpid'];
+        $pnm=$_POST['txtpnm'];
+        $pdesc=$_POST['txtdesc'];
+        $query="insert into producttbl (Product_ID,Product_Name,Description) values ($pid,'$pnm','$pdesc');";
+        $result=mysqli_query($con,$query);
+        echo "<script> alert('Product Added...'); </script>";
+    }
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CATEGORY PAGE</title>
+</head>
+<body>
+<nav class="navbar bg-dark text-light navbar-expand-lg">
+            <div class="container-fluid">            
+                <a class="navbar-brand text-light" href="a_index.php">EIR Admin Panel</a>
+                <div class="collapse navbar-collapse mx-3" id="navbarSupportedContext">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-light active" aria-current="page" href="product.php">Product_Master</a>                            
+                        </li>
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="Serviceregistration.php">Service_Registration</a>
+                        </li>                        
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="viewcomplain.php">View_Complaints</a>
+                        </li>
+                    </ul>                    
+                    <form class="d-flex" role="search">
+                        <button class="btn btn-light bh-light text-dark" type="submit" value="LOGOUT"><a href="logout.php" class="text-dark" style="text-decoration: none;">LOGOUT</a></button></a>
+                    </form>
+                </div>
+                </a>
+            </div>    
+        </nav>
+     <div class="container">        
+     <div align="center"><label><h2>PRODUCT PAGE</h2></label></div>
+        <form method="POST" class="form-control my-4">
+            <label class="mx-2"> Product ID  :</label>
+            <input class="form-control" type="text"  name="txtpid" autocomplete="off"><br />
+            <label> Product Name  :</label>
+            <input class="form-control" type="text"  name="txtpnm" autocomplete="off"><br />
+            <label>Description  :</label>
+            <textarea class="form-control" name="txtdesc" rows="4" cols="20" autocomplete="off" placeholder="Enter Description here.." ><?php echo $d;  ?></textarea><br>
+            <button type="submit" class="btn btn-success "  name="Insert" value="Insert" > INSERT</button>
+        </form>
+    </div>
+    <br />
+    <table class="container table table-hover ">
+    <tr>
+            <td><b>Product ID</b></td>
+            <td><b>Product Name</b></td>
+            <td><b>Description</b></td>
+            <td><b>Operations</b></td>
+        </tr>
+        <?php
+            $query="select *from producttbl";
+            $result=mysqli_query($con,$query);
+            while($row=mysqli_fetch_array($result))
+            {
+                ?>
+                <tr>
+                    <td><?php echo $row[0]; ?></td>
+                    <td><?php echo $row[1]; ?></td>
+                    <td><?php echo $row[2]; ?></td>        
+                    <td><button type="submit" class="btn btn-dark " name="Edit" value="Edit" > <a class="text-decoration-none text-light" href="p_update.php?id=<?php echo $row[0];?>">Update</a></button>
+                    <button type="submit" class="btn btn-danger " name="Delete" value="Delete" > <a class="text-decoration-none text-light" href="p_delete.php?id=<?php echo $row[0];?>">Delete</a></button></td>
+                </tr>
+                <?php                
+            }
+        ?>
+    </table> 
+</body>
+</html>
+
+----------Serviceregistration.php -----------------
+
+<?php
+	$con=mysqli_connect("localhost","root","","electronic");
+	if(mysqli_connect_errno())
+	{
+ 	   echo "<script> alert('Connection Failed...'); </script>";
+	}
+	if(isset($_POST['Insert']))
+	{   
+ 	   $nm=$_POST['txtname'];
+ 	   $pno=$_POST['txtmob'];    
+    	   $age=$_POST['txtage'];
+   	   $photo=$_FILES['file']['name'];
+   	  $type="Service_Provider";
+   	  $pwd=$_POST['txtpwd'];
+   	  $cpwd=$_POST['txtcpwd'];   
+    $basename=substr($photo,0,strripos($photo,'.'));
+    $ext=substr($photo,strripos($photo,'.'));
+    $newname=md5($basename).rand(10,1000).$ext;
+    $tmpname=$_FILES['file']['tmp_name'];
+    $flag=0;
+    if(file_exists("upload11/".$newname))
+    {
+        echo "<script> alert('File already exists...'); </script>";
+    }
+    else{
+        move_uploaded_file($tmpname,"upload11/".$newname);
+        $flag=1;
+    }
+    if($flag==1)
+    {
+        echo "<script> alert('File uploaded successfully....'); </script>";
+    }    
+    if($pwd==$cpwd)
+    {
+            $query="insert into regtbl (Name,Phone_No,Age,Photo,Type,Password) values ('$nm','$pno','$age','$newname','$type','$pwd')";                                   $result=mysqli_query($con,$query) or die('insert failed');
+            echo "<script> alert('Record Added...'); </script>";
+    }
+    else
+    {
+         echo "<script> alert('Password and Confirm password must be same...'); </script>";
+    }    
+}
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIR Registration Page</title>
+</head>
+<body>
+<nav class="navbar bg-dark text-light navbar-expand-lg">
+            <div class="container-fluid">            
+                <a class="navbar-brand text-light" href="a_index.php">EIR Admin Panel</a>
+                <div class="collapse navbar-collapse mx-3" id="navbarSupportedContext">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-light active" aria-current="page" href="product.php">Product_Master</a>                            
+                        </li>
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="Serviceregistration.php">Service_Registration</a>
+                        </li>                        
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="viewcomplain.php">View_Complaints</a>
+                        </li>
+                    </ul>                    
+                    <form class="d-flex" role="search">
+                        <button class="btn btn-light bh-light text-dark" type="submit" value="LOGIN"><a href="a_login.php" class="text-dark" style="text-decoration: none;">LOGOUT</a></button></a>
+                    </form>
+                </div>
+                </a>
+            </div>    
+        </nav>
+    <div class="container">
+     <h2 align="center" class="my-2">SERVICE REGISTRATION PAGE</h2>
+        <form method="POST" class="form-control my-4" action="" enctype="multipart/form-data" >            
+            <label> Name :</label>
+            <input class="form-control" type="text" placeholder="Enter Name" name="txtname" autocomplete="off"><br />
+            <label> Phone Number :</label>
+            <input class="form-control" type="text" placeholder="Enter Mobile Number" name="txtmob" autocomplete="off"><br />
+            <label> Age :</label>
+            <input class="form-control" type="text" placeholder="Enter Age" name="txtage" autocomplete="off"><br />
+            <label> Photo :</label>
+            <input class="form-control" type="file" name="file"><br />
+            <label> Password :</label>
+            <input class="form-control" type="password" placeholder="Enter Password" name="txtpwd" autocomplete="off"><br />
+            <label> Confirm Password :</label>
+            <input class="form-control" type="text" placeholder="Enter Confirm Password" name="txtcpwd" autocomplete="off"><br />
+            <button type="submit" class="btn btn-success form-control"  name="Insert" value="Insert" > REGISTER</button>
+        </form>
+    </div>
+</body>
+</html>
+
+------------spviewcomplaint.php -----------------
+
+<?php
+    session_start();
+    $con=mysqli_connect("localhost","root","","electronic"); 
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CATEGORY PAGE</title>
+</head>
+<body>
+    <nav class="navbar bg-dark text-light navbar-expand-lg">
+            <div class="container-fluid">           
+                <a class="navbar-brand text-light" href="a_index.php">EIR Admin Panel</a>             
+		 <form class="d-flex" role="search">
+                        <!-- <input class="form-control me-2" type="search"  aria-label="Search"/> -->
+                        <button class="btn btn-light bh-light text-dark" type="submit" value="LOGIN"><a href="a_login.php" class="text-dark" style="text-decoration: none;">LOGOUT</a></button></a>
+                        <!-- <button class="btn btn-light mx-2" type="submit"><a href="registration.php" class="text-dark" style="text-decoration: none;" style="text-decoration: none;">ServiceProvider Registration</a></button> -->
+                    </form>
+                </a>
+            </div>    
+        </nav>
+     <div class="container">       
+         <h3 class="text-danger">Welcome....<?php echo $_SESSION['name'];   ?></h3>
+        <form method="POST" class="form-control my-4">
+         <h2>View Complaints Page</h2>
+             <table class="container table">
+                <tr>
+                    <th>Complaint Id</th>
+                    <th>Product Id</th>
+                    <th>Description</th>
+                    <th>Customer Id</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                <?php
+                    $cid=$_SESSION['id'];
+                    $query="select *from complainttbl";
+                    $result=mysqli_query($con,$query);
+                    while($row=mysqli_fetch_array($result))
+                    {
+                        ?>
+                        <tr>
+                            <td><?php echo $row[0];   ?></td>
+                            <td><?php echo $row[1];   ?></td>
+                            <td><?php echo $row[2];   ?></td>
+                            <td><?php echo $row[3];   ?></td>
+                            <td><?php echo $row[4];   ?></td>
+                            <td>
+                                <a href="statusupdate.php?id=<?php echo $row[0];  ?>" class="btn btn-dark">UPDATE</a>
+                            </td>                         
+                        </tr>                    
+                    <?php 
+                    }
+                    ?>                
+            </table>           
+       </form>
+    </div>     
+</body>
+</html>
+
+----------statusupdate.php -----------------
+
+<?php
+    session_start();
+    $con=mysqli_connect("localhost","root","","electronic");  
+    if(mysqli_connect_errno())
+    {
+        echo "<script> alert('Connection Failed...'); </script>";
+    }
+    $i=" ";
+    if(isset($_REQUEST['id']))
+    {
+        $comid=$_REQUEST['id'];
+        $query="select *from complainttbl";
+        $result=mysqli_query($con,$query);
+        $row=mysqli_fetch_assoc($result);
+        $i=$row['ComplaintId'];
+        $query2="update complainttbl set Status='Completed'  where ComplaintId=$comid";
+        $result2=mysqli_query($con,$query2);
+        echo "<script> window.location.href='spviewcomplaint.php';</script>";
+    }   
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPLAINT STATUS UPDATE PAGE</title>
+</head>
+<body>    
+     <nav class="navbar bg-dark text-light navbar-expand-lg">
+        <div class="container-fluid">
+          <a class="navbar-brand text-light" href="#">EIR</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse  navbar-collapse" id="navbarSupportedContent">           
+            <form class="d-flex" role="search">
+              <button class="btn btn-outline-light" type="submit"><a href="a_login.php" class="text-light" style="text-decoration: none;">LOGOUT</a></button>
+            </form>
+          </div>
+        </div>
+      </nav>      
+      <h3 class="text-danger">Welcome...<?php echo $_SESSION['name'];  ?></h3>
+      <div class="container">
+          <br>
+         <h2>STATUS UPDATE PAGE</h2>
+        <form method="POST" class="form-control my-4">
+            <table class="container table">
+                <tr>
+                    <?php
+                        $cid=$_SESSION['id'];
+                        $query="select *from complainttbl";
+                        $result=mysqli_query($con,$query);
+                    ?>
+                    <label> Complaint Id :</label>
+                    <input class="form-control" type="text"  name="txtcomid" value="<?php echo $i;  ?>"><br />
+                </tr>
+                <tr>
+                   <label>Status :</label>
+                   <select class="form-control"  name="txtstatus">
+                       <option value="Pending" disabled>Pending</option>
+                       <option value="Completed">Completed</option>
+                   </select>
+                </tr>
+                <tr>
+                    <td>a<button name="btnadd" class="btn btn-success" value="Update" name="Update">Update</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>
+
+
+----------temp.php -----------------
+
+<?php
+
+	$cid=$_GET['cid'];
+	$sid=$_GET['sid'];
+	$s="Pending";
+	echo $cid," ",$sid;
+	$con=mysqli_connect("localhost","root","","electronic");
+	$query="update complainttbl set Status='Pending' ,Service_Provider=$sid where Complaint_ID=$cid" ;
+	$result=mysqli_query($con,$query);
+	if($result)
+	{
+   		 echo "OK";
+	}
+	else{
+    		echo "Not OK";
+	}
+
+?>
+
+----------viewcomplain.php -----------------
+
+<?php
+    session_start();
+    $con=mysqli_connect("localhost","root","","electronic");
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>CATEGORY PAGE</title>
+</head>
+<body>
+    <nav class="navbar bg-dark text-light navbar-expand-lg">
+            <div class="container-fluid">            
+                <a class="navbar-brand text-light" href="a_index.php">EIR Admin Panel</a>
+                <div class="collapse navbar-collapse mx-3" id="navbarSupportedContext">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-light active" aria-current="page" href="product.php">Product_Master</a>                            
+                        </li>
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="Serviceregistration.php">Service_Registration</a>
+                        </li>                        
+                        <li class="nav-item">                            
+                            <a class="nav-link text-light active" aria-current="page" href="viewcomplain.php">View_Complaints</a>
+                        </li>
+                    </ul>                    
+                    <form class="d-flex" role="search">
+                        <button class="btn btn-light bh-light text-dark" type="submit" value="LOGIN"><a href="a_login.php" class="text-dark" style="text-decoration: none;">LOGOUT</a></button></a>
+                    </form>
+                </div>
+                </a>
+            </div>    
+        </nav>
+     <div class="container">    
+         <h3 class="text-danger">Welcome....<?php echo $_SESSION['name'];   ?></h3>
+        <form method="POST" class="form-control my-4">
+         <h2>View Complaints Table</h2>
+            <table class="container table">
+                <tr>
+                    <th>Complaint Id</th>
+                    <th>Product Id</th>
+                    <th>Description</th>
+                    <th>Customer Id</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                <?php
+                    $cid=$_SESSION['id'];
+                    $query="select *from complainttbl";
+                    $result=mysqli_query($con,$query);
+                    while($row=mysqli_fetch_array($result))
+                    {
+                        ?>
+                        <tr>
+                            <td><?php echo $row[0];   ?></td>
+                            <td><?php echo $row[1];   ?></td>
+                            <td><?php echo $row[2];   ?></td>
+                            <td><?php echo $row[3];   ?></td>
+                            <td><?php echo $row[4];   ?></td>                            
+                        </tr>                    
+                    <?php 
+                    }
+                    ?>                
+            </table>         
+	</form>
+    </div>
+     <?php  include 'complaint_allocation.php';  ?>     
+    </body>
+</html>
+
